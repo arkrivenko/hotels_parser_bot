@@ -1,7 +1,7 @@
 from loader import bot
 from datetime import datetime
-from check_date import check_date
-from check_out_date import check_out_date
+from functions.check_date import check_date
+from functions.check_out_date import check_out_date
 from database.database_functions import set_check_in_date
 
 

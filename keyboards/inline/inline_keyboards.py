@@ -14,3 +14,8 @@ markup_check_out.row(InlineKeyboardButton("Выбрать количество �
 markup_adult_checker = InlineKeyboardMarkup()
 markup_adult_checker.add(InlineKeyboardButton("Да", callback_data="have_kids"),
                          InlineKeyboardButton("Нет", callback_data="no_kids"))
+
+markup_searching_types = InlineKeyboardMarkup()
+markup_searching_types.add(InlineKeyboardButton("Самые дешёвые отели", callback_data="lowprice_button"))
+markup_searching_types.add(InlineKeyboardButton("Самые дорогие отели", callback_data="highprice_button"))
+markup_searching_types.add(InlineKeyboardButton("История поиска", callback_data="history_button"))

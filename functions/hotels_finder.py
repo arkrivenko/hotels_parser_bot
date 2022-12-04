@@ -1,6 +1,8 @@
+import json
+
 from config_data.config import headers
 from database.database_functions import get_current_request, set_history_data
-from get_hotels import get_hotels
+from functions.get_hotels import get_hotels
 import requests
 
 
@@ -41,6 +43,8 @@ def hotels_finder(number_of_photos, user_id):
         }
         response = requests.request("POST", url, json=payload, headers=final_headers)
         data = response.json()
+        with open('tagline.json', 'w') as f:
+            json.dump(data, f, indent=4)
         tagline = data.get("data").get("propertyInfo").get("summary").get("tagline")
         valid_hotels_dict[hotel]["tagline"] = tagline
         photos_list = []

@@ -5,6 +5,7 @@ from functions.city_input import city_input
 from database.database_functions import get_check_in_date, get_check_out_date, get_kids_ages, get_adults_count
 
 
+@bot.callback_query_handler(func=lambda call: call.data == "lowprice_button")
 @bot.message_handler(commands=["lowprice"])
 def lowprice_search(message):
     markup = InlineKeyboardMarkup()

@@ -1,5 +1,5 @@
 from loader import bot
-from hotels_finder import hotels_finder
+from functions.hotels_finder import hotels_finder
 
 
 def photos_counting(message):

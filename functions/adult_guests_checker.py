@@ -1,6 +1,6 @@
 from loader import bot
 from keyboards.inline.inline_keyboards import markup_adult_checker
-from number_check import number_check
+from functions.number_check import number_check
 from database.database_functions import set_adults_count
 
 

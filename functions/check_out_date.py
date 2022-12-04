@@ -1,7 +1,7 @@
 from loader import bot
-from keyboards.inline.inline_keyboards import markup_check_out
+from keyboards.inline.inline_keyboards import markup_check_out, markup_searching_types
 from database.database_functions import get_check_in_date, set_check_out_date, set_dates_flag, get_guests_count_flag
-from check_date import check_date
+from functions.check_date import check_date
 
 
 def check_out_date(message):
@@ -19,7 +19,8 @@ def check_out_date(message):
             guests_count_flag = get_guests_count_flag(message.from_user.id)
             if guests_count_flag == 1:
                 bot.send_message(message.from_user.id,
-                                 "Дата выезда успешно сохранена. Теперь можно переходить к поиску.")
+                                 "Дата выезда успешно сохранена. Теперь можно переходить к поиску.",
+                                 reply_markup=markup_searching_types)
             else:
                 bot.send_message(message.from_user.id, "Дата выезда сохранена, теперь необходимо указать количество "
                                                        "гостей.", reply_markup=markup_check_out)

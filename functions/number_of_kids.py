@@ -1,8 +1,8 @@
 from loader import bot
-from number_check import number_check
-from kid_age_checker import kid_age_checker
-from kids_ages_saver import kids_ages_saver
-from guests_flag_saver import guests_flag_saver
+from functions.number_check import number_check
+from functions.kid_age_checker import kid_age_checker
+from functions.kids_ages_saver import kids_ages_saver
+from functions.guests_flag_saver import guests_flag_saver
 
 
 def number_of_kids(message):

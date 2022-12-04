@@ -6,7 +6,7 @@ from datetime import datetime
 def set_start_data(user_id):
     with sqlite3.connect('users.db') as db:
         c = db.cursor()
-        c.execute("""INSERT OR IGNORE INTO users_data (user_id) VALUES (?);""", (user_id))
+        c.execute("""INSERT OR IGNORE INTO users_data (user_id) VALUES (?);""", (user_id,))
         c.execute("""UPDATE users_data SET (check_in, check_out, adults_count, kids_ages, dates_flag, 
                     guests_count_flag, request) 
             = (NULL, NULL, NULL, NULL, 0, 0, NULL) WHERE user_id = ?;""", (user_id,))
