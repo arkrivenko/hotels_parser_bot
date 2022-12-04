@@ -1,15 +1,12 @@
-from secure_file import TELEGRAM_TOKEN
-import telebot
-
-bot = telebot.TeleBot(TELEGRAM_TOKEN)
-
-
-@bot.message_handler(content_types=['text'])
-def get_text_messages(message):
-    if message.text.lower() == "привет":
-        bot.send_message(message.from_user.id, "Доброго времени суток!")
-    elif message.text == "/hello_world":
-        bot.send_message(message.from_user.id, "Привет, мир!")
+from loader import bot
+from utils.set_bot_commands import set_default_commands
+from database.database_init import db_create
+import functions
 
 
-bot.polling(none_stop=True, interval=0)
+if __name__ == "__main__":
+    db_create()
+    print('db created')
+    set_default_commands(bot)
+    print('commands added')
+    bot.infinity_polling()
