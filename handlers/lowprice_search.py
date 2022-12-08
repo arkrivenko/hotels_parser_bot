@@ -5,6 +5,7 @@ from functions.pre_city_input import pre_city_input
 @bot.callback_query_handler(func=lambda call: call.data == "lowprice_button")
 @bot.message_handler(commands=["lowprice"])
 def lowprice_search(message):
+    flag = False
     payload = {
         "currency": "USD",
         "eapid": 1,
@@ -31,8 +32,8 @@ def lowprice_search(message):
         "resultsSize": None,
         "sort": "PRICE_LOW_TO_HIGH",
         "filters": {"price": {
-            "max": 100000,
+            "max": 300,
             "min": 1
         }}
     }
-    pre_city_input(payload, message.from_user.id)
+    pre_city_input(payload, message.from_user.id, flag)

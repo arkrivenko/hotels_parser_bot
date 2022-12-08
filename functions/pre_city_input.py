@@ -5,7 +5,7 @@ from functions.city_input import city_input
 from database.database_functions import get_check_in_date, get_check_out_date, get_kids_ages, get_adults_count
 
 
-def pre_city_input(payload, user_id):
+def pre_city_input(payload, user_id, flag):
     markup = InlineKeyboardMarkup()
 
     if flags_checker(user_id) == 0:
@@ -28,7 +28,7 @@ def pre_city_input(payload, user_id):
         payload["rooms"][0]["adults"], payload["rooms"][0]["children"] = adults_count, children
 
         msg = bot.send_message(user_id, "Введите город, в котором будет производиться поиск.")
-        bot.register_next_step_handler(msg, city_input, payload)
+        bot.register_next_step_handler(msg, city_input, payload, flag)
 
     elif flags_checker(user_id) == 1:
         markup.row(InlineKeyboardButton("Выбрать даты заезда/выезда", callback_data="dates_button"))
