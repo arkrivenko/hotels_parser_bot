@@ -2,6 +2,7 @@ from loader import bot
 from functions.pre_city_input import pre_city_input
 
 
+@bot.callback_query_handler(func=lambda call: call.data == "bestdeal_button")
 @bot.message_handler(commands=["bestdeal"])
 def bestdeal_search(message):
     flag = True
