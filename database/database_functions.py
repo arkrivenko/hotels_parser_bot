@@ -102,19 +102,20 @@ def get_current_request(user_id):
     return payload
 
 
-def set_history_data(hotels_dict, user_id):
+def set_history_data(command, hotels_dict, user_id):
     with sqlite3.connect('users.db') as db:
         c = db.cursor()
-        c.execute("""INSERT INTO users_requests (user_id, date_of_request, request) VALUES (?,?,?);""",
-                  (user_id, datetime.now(), json.dumps(hotels_dict)))
+        c.execute("""INSERT INTO users_requests (user_id, date_of_request, command, request) VALUES (?,?,?,?);""",
+                  (user_id, datetime.now(), command, json.dumps(hotels_dict)))
         db.commit()
 
 
-def get_history_data(user_id):
+def get_history_data(user_id, starting_day=0):
     with sqlite3.connect('users.db') as db:
         c = db.cursor()
-        history_data = json.loads(c.execute("""SELECT request FROM users_requests WHERE user_id = ?;""",
-                                            (user_id,)).fetchone()[0])
+        history_data = c.execute("""SELECT date_of_request, command, request FROM users_requests 
+        WHERE user_id = ? AND datetime(date_of_request) > ? ORDER BY datetime(date_of_request) DESC;""",
+                                 (user_id, starting_day)).fetchall()
     return history_data
 
 

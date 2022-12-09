@@ -16,12 +16,17 @@ def hotels_finder(number_of_photos, user_id):
     hotels_counter = None
 
     if sorter == "DISTANCE":
+        command = "/bestdeal"
         hotels_counter = payload.get("resultsSize")
         price_range = payload.get("price_range")
         distance_range = payload.get("distance_range")
         payload.pop("distance_range")
         payload.pop("price_range")
         payload["resultsSize"] = 100
+    elif sorter == "PRICE_HIGH_TO_LOW":
+        command = "/highprice"
+    else:
+        command = "/lowprice"
 
     response = requests.request("POST", url, json=payload, headers=final_headers)
     data = response.json()
@@ -31,8 +36,9 @@ def hotels_finder(number_of_photos, user_id):
     if sorter == "DISTANCE":
         flag = False
         while hotels_counter > 0 and flag is False:
-            flag, valid_hotels_dict, hotels_counter = valid_hotels_finder(hotels_data, valid_hotels_dict,
-                                                                          hotels_counter, distance_range, price_range)
+            flag, valid_hotels_dict, hotels_counter = valid_hotels_finder(user_id, hotels_data, valid_hotels_dict,
+                                                                          hotels_counter, distance_range,
+                                                                          price_range, number_of_photos)
             payload["resultsStartingIndex"] += 100
             try:
                 new_response = requests.request("POST", url, json=payload, headers=final_headers)
@@ -43,47 +49,18 @@ def hotels_finder(number_of_photos, user_id):
 
     else:
         for hotel in hotels_data:
-            hotel_dict = valid_hotels_dict_maker(hotel)
+            hotel_dict, hotel_id = valid_hotels_dict_maker(hotel, number_of_photos)
+            get_hotels(hotel_dict.get(hotel_id), user_id)
             valid_hotels_dict.update(hotel_dict)
 
     if not valid_hotels_dict:
         bot.send_massage(user_id, "По Вашим критериям ничего не нашлось( Изменить параметры поиска и попробуйте "
                                   "еще раз.")
     else:
-        url = "https://hotels4.p.rapidapi.com/properties/v2/get-summary"
-
-        for hotel in valid_hotels_dict:
-            payload = {
-                "currency": "USD",
-                "eapid": 1,
-                "locale": "en_US",
-                "siteId": 300000001,
-                "propertyId": hotel
-            }
-            response = requests.request("POST", url, json=payload, headers=final_headers)
-            data = response.json()
-            address = data.get("data").get("propertyInfo").get("summary").get("location").get("address").get("addressLine")
-            valid_hotels_dict[hotel]["address"] = address
-            tagline = data.get("data").get("propertyInfo").get("summary").get("tagline")
-            valid_hotels_dict[hotel]["tagline"] = tagline
-            photos_list = []
-            count = 0
-
-            for elem in data.get("data").get("propertyInfo").get("propertyGallery").get("images"):
-                if count == number_of_photos:
-                    break
-                photo_url = elem.get("image").get("url")
-                caption = elem.get("image").get("description")
-                hotel_photo_list = [photo_url, caption]
-                photos_list.append(hotel_photo_list)
-                count += 1
-
-            valid_hotels_dict[hotel]["photos_list"] = photos_list
-        set_history_data(valid_hotels_dict, user_id)
-        get_hotels(valid_hotels_dict, user_id)
+        set_history_data(command, valid_hotels_dict, user_id)
 
 
-def valid_hotels_dict_maker(hotel):
+def valid_hotels_dict_maker(hotel, number_of_photos):
     hotel_id = hotel.get("id")
     name = hotel.get("name")
     score = hotel.get("reviews").get("score")
@@ -97,10 +74,45 @@ def valid_hotels_dict_maker(hotel):
                              "price per night": price_per_night,
                              "total price": price_total
                              }}
-    return hotel_dict
+
+    url = "https://hotels4.p.rapidapi.com/properties/v2/get-summary"
+    final_headers = {"content-type": "application/json"}
+    final_headers.update(headers)
+
+    payload = {
+        "currency": "USD",
+        "eapid": 1,
+        "locale": "en_US",
+        "siteId": 300000001,
+        "propertyId": hotel_id
+    }
+
+    response = requests.request("POST", url, json=payload, headers=final_headers)
+    data = response.json()
+
+    address = data.get("data").get("propertyInfo").get("summary").get("location"). \
+        get("address").get("addressLine")
+    hotel_dict[hotel_id]["address"] = address
+    tagline = data.get("data").get("propertyInfo").get("summary").get("tagline")
+    hotel_dict[hotel_id]["tagline"] = tagline
+    photos_list = []
+    count = 0
+
+    for elem in data.get("data").get("propertyInfo").get("propertyGallery").get("images"):
+        if count == number_of_photos:
+            break
+        photo_url = elem.get("image").get("url")
+        caption = elem.get("image").get("description")
+        hotel_photo_list = [photo_url, caption]
+        photos_list.append(hotel_photo_list)
+        count += 1
+
+    hotel_dict[hotel_id]["photos_list"] = photos_list
+    return hotel_dict, hotel_id
 
 
-def valid_hotels_finder(hotels_data, valid_hotels_dict, hotels_counter, distance_range, price_range):
+def valid_hotels_finder(user_id, hotels_data, valid_hotels_dict, hotels_counter,
+                        distance_range, price_range, number_of_photos):
     flag = False
     for hotel in hotels_data:
         current_price = hotel.get("price").get("lead").get("amount")
@@ -110,7 +122,8 @@ def valid_hotels_finder(hotels_data, valid_hotels_dict, hotels_counter, distance
             break
         if distance_range[0] <= current_distance <= distance_range[1] and \
                 price_range[0] <= current_price <= price_range[1]:
-            hotel_dict = valid_hotels_dict_maker(hotel)
+            hotel_dict, hotel_id = valid_hotels_dict_maker(hotel, number_of_photos)
+            get_hotels(hotel_dict.get(hotel_id), user_id)
             valid_hotels_dict.update(hotel_dict)
             hotels_counter -= 1
     return flag, valid_hotels_dict, hotels_counter

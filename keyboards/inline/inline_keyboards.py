@@ -20,3 +20,9 @@ markup_searching_types.add(InlineKeyboardButton("Самые дешёвые от�
 markup_searching_types.add(InlineKeyboardButton("Самые дорогие отели", callback_data="highprice_button"))
 markup_searching_types.add(InlineKeyboardButton("Лучшие предложения", callback_data="bestdeal_button"))
 markup_searching_types.add(InlineKeyboardButton("История поиска", callback_data="history_button"))
+
+markup_get_history = InlineKeyboardMarkup()
+markup_get_history.add(InlineKeyboardButton("За сутки", callback_data="for_a_day"))
+markup_get_history.add(InlineKeyboardButton("За неделю", callback_data="for_a_week"))
+markup_get_history.add(InlineKeyboardButton("За месяц", callback_data="for_a_month"))
+markup_get_history.add(InlineKeyboardButton("За всё время", callback_data="for_all_time"))

@@ -18,6 +18,7 @@ def db_create():
     c.execute("""CREATE TABLE IF NOT EXISTS users_requests(
         user_id INT,
         date_of_request DATETIME,
+        command TEXT,
         request JSON
         )""")
 
