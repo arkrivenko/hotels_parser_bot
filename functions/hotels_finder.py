@@ -1,3 +1,4 @@
+from loader import bot
 from config_data.config import headers
 from database.database_functions import get_current_request, set_history_data
 from functions.get_hotels import get_hotels
@@ -45,37 +46,41 @@ def hotels_finder(number_of_photos, user_id):
             hotel_dict = valid_hotels_dict_maker(hotel)
             valid_hotels_dict.update(hotel_dict)
 
-    url = "https://hotels4.p.rapidapi.com/properties/v2/get-summary"
+    if not valid_hotels_dict:
+        bot.send_massage(user_id, "По Вашим критериям ничего не нашлось( Изменить параметры поиска и попробуйте "
+                                  "еще раз.")
+    else:
+        url = "https://hotels4.p.rapidapi.com/properties/v2/get-summary"
 
-    for hotel in valid_hotels_dict:
-        payload = {
-            "currency": "USD",
-            "eapid": 1,
-            "locale": "en_US",
-            "siteId": 300000001,
-            "propertyId": hotel
-        }
-        response = requests.request("POST", url, json=payload, headers=final_headers)
-        data = response.json()
-        address = data.get("data").get("propertyInfo").get("summary").get("location").get("address").get("addressLine")
-        valid_hotels_dict[hotel]["address"] = address
-        tagline = data.get("data").get("propertyInfo").get("summary").get("tagline")
-        valid_hotels_dict[hotel]["tagline"] = tagline
-        photos_list = []
-        count = 0
+        for hotel in valid_hotels_dict:
+            payload = {
+                "currency": "USD",
+                "eapid": 1,
+                "locale": "en_US",
+                "siteId": 300000001,
+                "propertyId": hotel
+            }
+            response = requests.request("POST", url, json=payload, headers=final_headers)
+            data = response.json()
+            address = data.get("data").get("propertyInfo").get("summary").get("location").get("address").get("addressLine")
+            valid_hotels_dict[hotel]["address"] = address
+            tagline = data.get("data").get("propertyInfo").get("summary").get("tagline")
+            valid_hotels_dict[hotel]["tagline"] = tagline
+            photos_list = []
+            count = 0
 
-        for elem in data.get("data").get("propertyInfo").get("propertyGallery").get("images"):
-            if count == number_of_photos:
-                break
-            photo_url = elem.get("image").get("url")
-            caption = elem.get("image").get("description")
-            hotel_photo_list = [photo_url, caption]
-            photos_list.append(hotel_photo_list)
-            count += 1
+            for elem in data.get("data").get("propertyInfo").get("propertyGallery").get("images"):
+                if count == number_of_photos:
+                    break
+                photo_url = elem.get("image").get("url")
+                caption = elem.get("image").get("description")
+                hotel_photo_list = [photo_url, caption]
+                photos_list.append(hotel_photo_list)
+                count += 1
 
-        valid_hotels_dict[hotel]["photos_list"] = photos_list
-    set_history_data(valid_hotels_dict, user_id)
-    get_hotels(valid_hotels_dict, user_id)
+            valid_hotels_dict[hotel]["photos_list"] = photos_list
+        set_history_data(valid_hotels_dict, user_id)
+        get_hotels(valid_hotels_dict, user_id)
 
 
 def valid_hotels_dict_maker(hotel):
